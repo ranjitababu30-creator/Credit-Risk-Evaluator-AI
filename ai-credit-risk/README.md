@@ -28,6 +28,8 @@ and produces:
 8. **Feature stability / drift monitoring** (Population Stability Index)
 9. **Probability calibration** reporting (Brier score, ECE)
 10. An interactive **What-If scenario simulator**
+11. **Batch dataset assessment** with separate approved, review, rejected,
+    anomalous, and unprocessed-row panels
 
 ## 2. Problem Statement
 
@@ -99,6 +101,20 @@ No paid APIs, no cloud services, no Docker requirement, no GPU requirement.
 > use them instead — no code changes needed.
 
 ## 6. Dataset Instructions
+
+### Batch assessment uploads
+
+Open **Upload Dataset** in the web app to process multiple applications at
+once. CSV, JSON, XLSX, and XLS files are supported, with a maximum of 5,000
+rows per upload. Each row should use the trained model's feature column names;
+unknown columns are ignored and missing feature values are handled by the
+preprocessor. The upload is scored by the existing model and is not used to
+retrain it. Successful rows are also recorded in the local assessment history.
+
+The result is split into separate panels for **Approved**, **Manual Review**,
+**Cannot Be Approved**, and **Anomalous Applications**. An anomaly is a
+monitoring signal and is not an accusation of fraud. Rows that cannot be
+processed are reported with their source row number.
 
 **Option A — Use the German Credit dataset (recommended):**
 Download a CSV version of the German Credit dataset (e.g. from the UCI
@@ -189,12 +205,14 @@ See section 3 above.
 |---|---|---|
 | GET | `/` | Dashboard |
 | GET | `/assessment` | Borrower assessment form |
+| GET | `/dataset` | Batch dataset upload and results panels |
 | GET | `/scenario` | What-If simulator page |
 | GET | `/fairness` | Fairness audit page |
 | GET | `/anomaly` | Anomalous applications page |
 | GET | `/stability` | Drift monitoring page |
 | GET | `/monitoring` | Model monitoring / metrics page |
 | POST | `/api/predict` | JSON body of feature values → prediction result |
+| POST | `/api/batch-predict` | Multipart `dataset` upload → partitioned batch results |
 | POST | `/api/explain` | Same as predict, plus SHAP/fallback explanation |
 | POST | `/api/scenario` | `{"original": {...}, "modified": {...}}` → before/after comparison |
 | GET | `/api/fairness` | Fairness audit computed on the held-out test set |
