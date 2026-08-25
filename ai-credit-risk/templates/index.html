@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — CreditGuard AI{% endblock %}
+{% block content %}
+<header class="page-header">
+  <h1>Portfolio Dashboard</h1>
+  <p class="muted">{{ disclaimer }}</p>
+</header>
+
+{% if not model_ready %}
+<div class="alert alert-warning">
+  <strong>Model not trained yet.</strong>
+  <p>{{ error }}</p>
+  <p>Run <code>python -m src.train_model</code> in your terminal, then reload this page.</p>
+</div>
+{% else %}
+<section class="card-grid">
+  <div class="stat-card">
+    <div class="stat-label">Total Applications</div>
+    <div class="stat-value">{{ stats.total }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Approval Rate</div>
+    <div class="stat-value">{{ stats.approval_rate }}%</div>
+    <div class="stat-sub">{{ stats.approvals }} approved</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Review Rate</div>
+    <div class="stat-value">{{ stats.review_rate }}%</div>
+    <div class="stat-sub">{{ stats.reviews }} in review</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Rejection Rate</div>
+    <div class="stat-value">{{ stats.rejection_rate }}%</div>
+    <div class="stat-sub">{{ stats.rejections }} rejected</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Average Risk Score</div>
+    <div class="stat-value">{{ stats.avg_score if stats.avg_score is not none else '—' }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">High-Risk Applications</div>
+    <div class="stat-value">{{ stats.high_risk }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Anomalous Applications</div>
+    <div class="stat-value">{{ stats.anomalies }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Selected Model</div>
+    <div class="stat-value stat-value-sm">{{ stats.selected_model }}</div>
+    <div class="stat-sub">ROC-AUC {{ stats.model_metrics.metrics.roc_auc }}</div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Quick actions</h2>
+  <div class="action-row">
+    <a class="btn btn-primary" href="{{ url_for('assessment') }}">+ New Assessment</a>
+    <a class="btn" href="{{ url_for('dataset_page') }}">Process Dataset</a>
+    <a class="btn" href="{{ url_for('scenario_page') }}">Run What-If Scenario</a>
+    <a class="btn" href="{{ url_for('fairness_page') }}">View Fairness Audit</a>
+    <a class="btn" href="{{ url_for('monitoring_page') }}">Model Monitoring</a>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

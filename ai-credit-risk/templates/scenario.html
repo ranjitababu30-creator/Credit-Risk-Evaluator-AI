@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}What-If Simulator — CreditGuard AI{% endblock %}
+{% block content %}
+<header class="page-header">
+  <h1>What-If Scenario Simulator</h1>
+  <p class="muted">{{ disclaimer }}</p>
+</header>
+
+{% if error %}
+<div class="alert alert-warning">
+  <strong>Model not trained yet.</strong>
+  <p>{{ error }}</p>
+</div>
+{% else %}
+<section class="panel">
+  <p class="muted">Set the borrower's current situation on the left, then adjust values on the right to see how the SAME trained model re-scores the application.</p>
+  <div class="scenario-columns">
+    <div>
+      <h3>Original</h3>
+      <div id="original-fields" class="form-grid"></div>
+    </div>
+    <div>
+      <h3>Modified</h3>
+      <div id="modified-fields" class="form-grid"></div>
+    </div>
+  </div>
+  <button id="btn-run-scenario" class="btn btn-primary btn-lg">RECALCULATE</button>
+  <div id="scenario-errors" class="form-errors"></div>
+</section>
+
+<section id="scenario-result" class="panel hidden">
+  <div class="scenario-compare">
+    <div class="scenario-before">
+      <h3>BEFORE</h3>
+      <div>Risk Score: <strong id="sc-before-score">—</strong></div>
+      <div>Probability of Default: <strong id="sc-before-prob">—</strong></div>
+      <div>Recommendation: <strong id="sc-before-rec">—</strong></div>
+    </div>
+    <div class="scenario-after">
+      <h3>AFTER</h3>
+      <div>Risk Score: <strong id="sc-after-score">—</strong></div>
+      <div>Probability of Default: <strong id="sc-after-prob">—</strong></div>
+      <div>Recommendation: <strong id="sc-after-rec">—</strong></div>
+    </div>
+    <div class="scenario-change">
+      <h3>CHANGE</h3>
+      <div id="sc-change" class="change-value">—</div>
+    </div>
+  </div>
+  <h4>Changed inputs</h4>
+  <ul id="sc-changed-fields" class="reason-list"></ul>
+  <p class="muted small">{{ disclaimer }}</p>
+</section>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script id="field-spec" type="application/json">{{ fields | tojson }}</script>
+<script src="{{ url_for('static', filename='js/scenario.js') }}"></script>
+{% endblock %}

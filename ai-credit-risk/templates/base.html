@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}AI Credit Risk Platform{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">◈</span>
+      <div>
+        <div class="brand-title">C.R.E.A</div>
+        <div class="brand-sub">Responsible Lending Prototype</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}" class="nav-link">Dashboard</a>
+      <a href="{{ url_for('assessment') }}" class="nav-link">New Assessment</a>
+      <a href="{{ url_for('dataset_page') }}" class="nav-link">Upload Dataset</a>
+      <a href="{{ url_for('scenario_page') }}" class="nav-link">What-If Simulator</a>
+      <a href="{{ url_for('fairness_page') }}" class="nav-link">Fairness Audit</a>
+      <a href="{{ url_for('anomaly_page') }}" class="nav-link">Anomalies</a>
+      <a href="{{ url_for('stability_page') }}" class="nav-link">Stability</a>
+      <a href="{{ url_for('monitoring_page') }}" class="nav-link">Model Monitoring</a>
+    </nav>
+    <div class="sidebar-footer">
+      <p>Prototype — decision support only. Not a real banking approval system.</p>
+    </div>
+  </aside>
+  <main class="content">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

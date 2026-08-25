@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Stability — CreditGuard AI{% endblock %}
+{% block content %}
+<header class="page-header">
+  <h1>Feature Stability / Drift Monitoring</h1>
+  <p class="muted">Population Stability Index (PSI) compares current feature distributions to the training distribution. This is a monitoring signal, not automatic proof the model is invalid.</p>
+</header>
+<section class="panel">
+  <div id="stability-status" class="status-banner">Loading…</div>
+  <table class="data-table">
+    <thead><tr><th>Feature</th><th>PSI</th><th>Status</th></tr></thead>
+    <tbody id="stability-rows"></tbody>
+  </table>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+async function loadStability() {
+  const status = document.getElementById('stability-status');
+  const rows = document.getElementById('stability-rows');
+  try {
+    const res = await fetch('/api/stability');
+    const data = await res.json();
+    if (data.error) { status.textContent = data.error; status.className = 'status-banner status-bad'; return; }
+    if (!data.available) { status.textContent = data.reason; status.className = 'status-banner status-neutral'; return; }
+    const cls = data.overall_status === 'Stable' ? 'status-good' : (data.overall_status === 'Warning' ? 'status-warn' : 'status-bad');
+    status.textContent = `Overall stability: ${data.overall_status}`;
+    status.className = 'status-banner ' + cls;
+    rows.innerHTML = Object.entries(data.features).map(([f, v]) => {
+      const rowCls = v.status === 'Stable' ? 'status-good' : (v.status === 'Warning' ? 'status-warn' : 'status-bad');
+      return `<tr><td>${f}</td><td>${v.psi}</td><td><span class="badge ${rowCls}">${v.status}</span></td></tr>`;
+    }).join('');
+  } catch (e) {
+    status.textContent = 'Could not load stability data: ' + e;
+    status.className = 'status-banner status-bad';
+  }
+}
+loadStability();
+</script>
+{% endblock %}

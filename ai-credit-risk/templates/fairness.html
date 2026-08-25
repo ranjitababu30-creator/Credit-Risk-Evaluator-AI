@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Fairness Audit — CreditGuard AI{% endblock %}
+{% block content %}
+<header class="page-header">
+  <h1>Fairness / Bias Audit</h1>
+  <p class="muted">{{ disclaimer }}</p>
+</header>
+<section class="panel">
+  <div id="fairness-status" class="status-banner">Loading…</div>
+  <div id="fairness-body"></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+async function loadFairness() {
+  const body = document.getElementById('fairness-body');
+  const status = document.getElementById('fairness-status');
+  try {
+    const res = await fetch('/api/fairness');
+    const data = await res.json();
+    if (data.error) { status.textContent = data.error; status.className = 'status-banner status-bad'; return; }
+    if (!data.available) {
+      status.textContent = data.reason;
+      status.className = 'status-banner status-neutral';
+      return;
+    }
+    let html = '';
+    for (const [attr, audit] of Object.entries(data.audits)) {
+      if (!audit.available) {
+        html += `<div class="fairness-card"><h3>${attr}</h3><p>${audit.reason}</p></div>`;
+        continue;
+      }
+      const statusClass = audit.status === 'NORMAL' ? 'status-good' : (audit.status === 'WARNING' ? 'status-warn' : 'status-bad');
+      html += `<div class="fairness-card">
+        <h3>${attr} <span class="badge ${statusClass}">${audit.status}</span></h3>
+        <p>Demographic parity difference: ${audit.demographic_parity_difference}</p>
+        <p>Equal opportunity difference: ${audit.equal_opportunity_difference ?? 'n/a'}</p>
+        <table class="data-table">
+          <thead><tr><th>Group</th><th>N</th><th>Approval Rate</th><th>TPR</th><th>FPR</th><th>FNR</th></tr></thead>
+          <tbody>
+            ${Object.entries(audit.group_metrics).map(([g, m]) => `
+              <tr><td>${g}</td><td>${m.n}</td><td>${m.approval_rate}</td><td>${m.true_positive_rate ?? '—'}</td><td>${m.false_positive_rate ?? '—'}</td><td>${m.false_negative_rate ?? '—'}</td></tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <p class="muted small">${audit.disclaimer}</p>
+      </div>`;
+    }
+    body.innerHTML = html;
+    status.textContent = 'Fairness audit computed on the held-out test set.';
+    status.className = 'status-banner status-good';
+  } catch (e) {
+    status.textContent = 'Could not load fairness data: ' + e;
+    status.className = 'status-banner status-bad';
+  }
+}
+loadFairness();
+</script>
+{% endblock %}
