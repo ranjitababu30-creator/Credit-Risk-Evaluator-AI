@@ -1,9 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Dashboard — CreditGuard AI{% endblock %}
+{% block title %}CREA AI - Dashboard{% endblock %}
+{% block breadcrumb %}Overview{% endblock %}
 {% block content %}
 <header class="page-header">
-  <h1>Portfolio Dashboard</h1>
-  <p class="muted">{{ disclaimer }}</p>
+  <h1>Credit Risk Intelligence</h1>
+  <p class="muted">Monitor portfolio risk, model health, and responsible lending signals.</p>
 </header>
 
 {% if not model_ready %}
@@ -15,7 +16,7 @@
 {% else %}
 <section class="card-grid">
   <div class="stat-card">
-    <div class="stat-label">Total Applications</div>
+    <div class="stat-label">Total Apps</div>
     <div class="stat-value">{{ stats.total }}</div>
   </div>
   <div class="stat-card">
@@ -34,22 +35,36 @@
     <div class="stat-sub">{{ stats.rejections }} rejected</div>
   </div>
   <div class="stat-card">
-    <div class="stat-label">Average Risk Score</div>
-    <div class="stat-value">{{ stats.avg_score if stats.avg_score is not none else '—' }}</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">High-Risk Applications</div>
+    <div class="stat-label">High-Risk</div>
     <div class="stat-value">{{ stats.high_risk }}</div>
   </div>
   <div class="stat-card">
     <div class="stat-label">Anomalous Applications</div>
     <div class="stat-value">{{ stats.anomalies }}</div>
   </div>
-  <div class="stat-card">
-    <div class="stat-label">Selected Model</div>
-    <div class="stat-value stat-value-sm">{{ stats.selected_model }}</div>
-    <div class="stat-sub">ROC-AUC {{ stats.model_metrics.metrics.roc_auc }}</div>
+</section>
+
+<section class="analytics-grid">
+  <div class="panel distribution-panel">
+    <div class="panel-heading"><h2>Risk Score Distribution</h2><span class="material-symbols-outlined">more_vert</span></div>
+    <div class="score-chart" aria-label="Risk score distribution visualization">
+      <span style="height: 18%"></span><span style="height: 26%"></span><span style="height: 40%"></span><span style="height: 66%"></span><span style="height: 82%"></span><span style="height: 53%"></span><span style="height: 30%"></span><span style="height: 20%"></span>
+    </div>
+    <div class="chart-axis"><span>0</span><span>250</span><span>500</span><span>750</span><span>1000</span></div>
   </div>
+  <div class="panel outcomes-panel">
+    <div class="panel-heading"><h2>Application Outcomes</h2><span class="material-symbols-outlined">filter_list</span></div>
+    <div class="outcome-ring"><strong>{{ stats.total }}</strong><small>TOTAL</small></div>
+    <div class="legend"><span><i class="legend-approved"></i>Approved</span><span><i class="legend-rejected"></i>Rejected</span><span><i class="legend-review"></i>Review</span></div>
+  </div>
+</section>
+
+<section class="dashboard-lower">
+  <div>
+    <section class="panel health-panel"><div class="panel-heading"><h2>Model Health</h2><span class="material-symbols-outlined status-good">verified</span></div><div class="health-value">{{ stats.model_metrics.metrics.roc_auc }}</div><span class="badge status-good">STABLE</span><div class="health-meter"><span></span></div><p class="muted">ROC-AUC for {{ stats.selected_model }}.</p></section>
+    <section class="panel health-panel"><div class="panel-heading"><h2>Responsible AI</h2><span class="material-symbols-outlined status-warn">gavel</span></div><div class="health-value">{{ stats.anomalies }}</div><span class="badge status-warn">MONITOR</span><div class="health-meter"><span class="warning-meter"></span></div><p class="muted">Anomalous applications flagged for review.</p></section>
+  </div>
+  <section class="panel applications-panel"><div class="panel-heading"><h2>Portfolio Summary</h2><a class="btn" href="{{ url_for('dataset_page') }}">Export</a></div><table class="data-table"><thead><tr><th>Signal</th><th>Value</th><th>Status</th></tr></thead><tbody><tr><td>Total applications</td><td>{{ stats.total }}</td><td><span class="badge status-good">TRACKING</span></td></tr><tr><td>Approval rate</td><td>{{ stats.approval_rate }}%</td><td><span class="badge status-good">HEALTHY</span></td></tr><tr><td>Review queue</td><td>{{ stats.reviews }}</td><td><span class="badge status-warn">MONITOR</span></td></tr><tr><td>Model</td><td>{{ stats.selected_model }}</td><td><span class="badge status-neutral">ACTIVE</span></td></tr></tbody></table></section>
 </section>
 
 <section class="panel">
